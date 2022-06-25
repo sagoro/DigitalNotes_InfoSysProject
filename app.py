@@ -16,15 +16,7 @@ client = MongoClient('mongodb://mongodb:27017/')
 db = client['DigitalNotes']
 users = db['users']
 notes = db['notes']
-
-# def get_db():
-# 	client=MongoClient(host='test_mongodb',
-# 						port=27017,
-# 						user='root',
-# 						password='pass',
-# 						authSource='admin')
-# 	db = client["animal_db"]
-# 	return db
+test = "test"
 
 #Home 
 @app.route('/')
@@ -99,7 +91,7 @@ def userLogin():
 ####Notes Management
 
 #Add Note
-@app.route('/addNote', methods=['POST'])
+@app.route('/notes/add', methods=['POST'])
 def addNote():
 	schema = {
 		'title' : {'required':True, 'type':'string'},
@@ -127,7 +119,7 @@ def addNote():
 
 
 #Search Note by Title
-@app.route('/searchnote/<string:title>', methods=['GET'])
+@app.route('/notes/search/<string:title>', methods=['GET'])
 def searchNoteTitle(title):
 	if title == None:
 		return Response("bad json content", status=500, mimetype="application/json")
@@ -158,9 +150,25 @@ def searchNoteTitle(title):
 # 		#return jsonify(searchNote)
 # 		return Response(json.dumps(searchNote),status=200,mimetype='application/json')
 
+#Update Note
+@app.route('/notes/update/', methods=['PUT'])
+def updateNote(title):
+	if title == None:
+		return Response("bad json content", status=500, mimetype="application/json")
+
+	searchNote = notes.find_one({"title":title})
+
+	if searchNote == None:
+		return Response("Note with title " +title+ " not found", status=500, mimetype="application/json")
+
+	if searchNote !=None:
+		searchNote = {'title':searchNote["title"],'content':searchNote["content"], 'tags':searchNote["tags"]}
+		#return jsonify(searchNote)
+		return Response(json.dumps(searchNote),status=200,mimetype='application/json')
+
 
 #Search Note by  Tag
-@app.route('/searchnotetag/<string:tag>', methods=['GET'])
+@app.route('/notes/searchtag/<string:tag>', methods=['GET'])
 def searchNoteTag(tag):
 	
 	if tag == None:
@@ -187,11 +195,11 @@ def searchNoteTag(tag):
 
 
 
-#Get All Users
-@app.route('/getAll', methods=['GET'])
-def getUsers():
-	cursor = db.users.find()
-	users = [{"name":y['name'],"email":y['email'], "yearOfBirth":y['yearOfBirth']} for y in cursor]
+#Get All Notes
+@app.route('/getnotes/', methods=['GET'])
+def getNotes():
+	cursor = db.notes.find()
+	users = [{"title":y['title'],"content":y['content'], "tags":y['tags']} for y in cursor]
 	return jsonify(users)
 
 
