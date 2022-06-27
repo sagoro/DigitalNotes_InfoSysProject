@@ -13,8 +13,9 @@ services:
     mongodb:
         image: mongo:latest
         restart: always
+        user: '1000:1000' #to avoid permission conflicts
         container_name: mongodb
         ports: 
             - "27017:27017"
         volumes:
-            - /data:/data/db
+            - ./data:/data/db
