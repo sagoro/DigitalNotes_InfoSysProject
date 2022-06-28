@@ -7,6 +7,7 @@ import time
 import datetime
 from bson.json_util import dumps
 from cerberus import Validator
+import re
 
 
 
@@ -16,7 +17,11 @@ client = MongoClient('mongodb://mongodb:27017/')
 db = client['DigitalNotes']
 users = db['users']
 notes = db['notes']
-test = "test"
+
+emailRegex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'  
+
+def emailCheck(email):
+	return re.search(emailRegex,email)
 
 
 users_sessions = {}
@@ -28,6 +33,11 @@ def create_session(username):
 
 def is_session_valid(session_id):
     return session_id in users_sessions
+
+def getUser(session_id):
+	return users_sessions[session_id][0]
+
+
 
 #Home 
 @app.route('/')
@@ -62,6 +72,11 @@ def userRegistration():
 	searchUser = users.find_one({"email":data["email"]})
 
 	if val.validate(data) and searchUser == None :
+
+		if not emailCheck(data["email"]):
+			return Response ("Email is not valid. Please retry registering with a valid email address.", status=200,mimetype="application/json")
+
+
 		newUser = {"email":data["email"], "firstName":data["firstName"], "surName":data["surName"], "password":data["password"], "category":"simpleUser"}
 		users.insert_one(newUser)
 		return Response ("user was added successfuly", status=200,mimetype="application/json")
@@ -94,16 +109,32 @@ def userLogin():
 	if val.validate(data) and searchUser != None :
 		if searchUser["password"]==data["password"]:
 
+
+			if any(e == data["email"] for e in users_sessions.values()):
+				return Response("You are already logged in",status=200, mimetype='application/json')	
+
 			user_uuid = create_session(data["email"])
-			#res = {"uuid": user_uuid, "username": data['email']}
+			
 			res = {"uuid": user_uuid, "username": data['email'], "users sessions":users_sessions, "userfromSession":users_sessions[user_uuid][0]}
+
+			#Check Admin first login
+			if searchUser["category"]=="admin" and searchUser['firstLogin'] == 1 or searchUser['passwordReset']== 0:
+				res = {"uuid": user_uuid, "username": data['email'], "users sessions":users_sessions, "userfromSession":users_sessions[user_uuid][0],"message": "Successful login. Please reset your password by following the endpoints ..url../passwordReset"}
+				searchUser = users.update_one({'email':data['email']},
+				{"$set":
+					{
+						"firstLogin":0
+					}
+				})
+				return Response(json.dumps(res),status=200, mimetype='application/json')
+
 			return Response(json.dumps(res),status=200, mimetype='application/json')
 
-			# return Response ("Login Successful", status=200,mimetype="application/json")
+			
 		else:
-			return Response ("Wrong Password", status=500,mimetype="application/json")
+			return Response ("Wrong Password", status=400,mimetype="application/json")
 	else:
-		return Response ("User is not registered", status=500,mimetype="application/json")
+		return Response ("User is not registered", status=400,mimetype="application/json")
 
 ####Notes Management
 
@@ -119,9 +150,13 @@ def addNote():
 	data = None
 	
 	
-	session_id = request.headers.get('Test')
+	session_id = request.headers.get('Authorization')
 	if session_id == None:
 		return Response("You are not authorized to perform this action. Please try to login first.", status=500, mimetype="application/json")
+
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
+
 
 	#Json Contents
 	try:
@@ -139,32 +174,11 @@ def addNote():
 	
 	if val.validate(data):
 		tags = data["tags"].split(',')
+		tmpUser = getUser(session_id)
 		#newNote = {"title":data["title"], "content":data["content"], "tags":tags, "createdDt":datetime.datetime.now(), "owner":users_sessions[user_id][0]}
-		newNote = {"title":data["title"], "content":data["content"], "tags":tags, "createdDt":datetime.datetime.now()}
+		newNote = {"title":data["title"], "content":data["content"], "tags":tags, "createdDt":datetime.datetime.now(), "owner":tmpUser}
 		notes.insert_one(newNote)
 		return Response ("test", status=200,mimetype="application/json")
-
-
-#Search Note by Title
-# @app.route('/notes/search/<string:title>', methods=['GET'])
-# def searchNoteTitle(title):
-
-# 	session_id = request.headers.get('Authorization')
-# 	if session_id == None:
-# 		return Response("You are not authorized to perform this action. Please try to login first.", status=500, mimetype="application/json")
-
-# 	if title == None:
-# 		return Response("bad json content", status=500, mimetype="application/json")
-
-# 	searchNote = notes.find_one({"title":title})
-
-# 	if searchNote == None:
-# 		return Response("Note with title " +title+ " not found", status=500, mimetype="application/json")
-
-# 	if searchNote !=None:
-# 		searchNote = {'title':searchNote["title"],'content':searchNote["content"], 'tags':searchNote["tags"]}
-# 		#return jsonify(searchNote)
-# 		return Response(json.dumps(searchNote),status=200,mimetype='application/json')
 
 #Search Note by Title
 @app.route('/searchnote/<string:title>', methods=['GET'])
@@ -174,10 +188,14 @@ def searchNoteTitle(title):
 	if session_id == None:
 		return Response("You are not authorized to perform this action. Please try to login first.", status=500, mimetype="application/json")
 
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
+
 	if title == None:
 		return Response("bad json content", status=500, mimetype="application/json")
 
-	searchNote = notes.find({"title":title})
+	tmpUser = getUser(session_id)
+	searchNote = notes.find({"title":title, "owner":tmpUser})
 
 	if searchNote == None:
 		return Response("Note with title " +title+ " not found", status=500, mimetype="application/json")
@@ -190,11 +208,19 @@ def searchNoteTitle(title):
 #Search Note by  Tag
 @app.route('/notes/searchtag/<string:tag>', methods=['GET'])
 def searchNoteTag(tag):
+
+	session_id = request.headers.get('Authorization')
+	if session_id == None:
+		return Response("You are not authorized to perform this action. Please try to login first.", status=500, mimetype="application/json")
+
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
 	
 	if tag == None:
 		return Response("bad json content", status=500, mimetype="application/json")
 
-	searchNote = notes.find({"tags":tag})
+	tmpUser = getUser(session_id)
+	searchNote = notes.find({"tags":tag, "owner":tmpUser})
 
 	if searchNote == None:
 		return Response("Note a single with tag " +tag+ " not found", status=500, mimetype="application/json")
@@ -222,10 +248,17 @@ def updateNote(title):
 	if session_id == None:
 		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
 
+	session_id = request.headers.get('Authorization')
+
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
+
+
 	if title == None:
 		return Response("bad json content", status=500, mimetype="application/json")
 
-	query={"title":title}
+	tmpUser = getUser(session_id)
+	query={"title":title, "owner":tmpUser}
 	updateNote = notes.find_one(query)
 
 	if updateNote != None:
@@ -315,11 +348,15 @@ def deleteNote(title):
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
 		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
 	
 	if title == None:
 		return Response("bad json content", status=500, mimetype="application/json")
 
-	query={"title":title}
+	tmpUser = getUser(session_id)
+	query={"title":title, "owner":tmpUser}
 	searchNote = notes.find_one(query)
 
 	if searchNote == None:
@@ -332,13 +369,15 @@ def deleteNote(title):
 
 #Delete Account
 @app.route('/deleteAccount/<string:username>', methods=['GET'])
-def deleteUser(username):
+def deleteAccount(username):
 
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
 		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
 
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
 
 	if username == None:
 		return Response("bad json content", status=500, mimetype="application/json")
@@ -355,40 +394,170 @@ def deleteUser(username):
 		return Response("Your account and all the data has been deleted.", status=200, mimetype="application/json")
 
 
-
-
-
-
-
-
-
 #Get All Notes
-@app.route('/getnotes/', methods=['GET'])
+@app.route('/getnotes/<string:sort>', methods=['GET'])
 def getNotes():
-	cursor = db.notes.find().sort([("createdDt", pymongo.DESCENDING)])
+
+	session_id = request.headers.get('Authorization')
+	if session_id == None:
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
+
+	tmpUser = getUser(session_id)
+
+	cursor = db.notes.find({"owner":tmpUser}).sort([("createdDt", pymongo.DESCENDING)])
 	users = [{"title":y['title'],"content":y['content'], "tags":y['tags'], "createdDt":y['createdDt'], "_id":str(y["_id"])} for y in cursor]
 	return jsonify(users)
 
 
-#Add New Note
-# @app.route('/addNote', methods=['POST'])
-# def newNote():
-# 	data = None
-# 	try:
-# 		data = json.loads(request.data)
-# 	except Exception as e:
-# 		return Response("bad json content", status=500, mimetype="application/json")
-# 	if data == None: 
-# 		return Response("bad json content", status=500, mimetype="application/json")
-# 	if not "title" in data or not "note" in data:
-# 		return Response("incomplete data", status=500, mimetype="application/json")
-# 	else:
-# 		newNote = {"title":data["title"], "note":data["note"]}
-# 		notes.insert_one(newNote)
-# 		return Response ("note was added successfuly", status=200,mimetype="application/json")
+
+#Add Admin
+@app.route('/addAdmin', methods=['POST'])
+def addAdmin():
+
+	schema = {
+		'email' : {'required':True, 'type':'string'},
+		'firstName' : {'required':True, 'type':'string'},
+		'surName' : {'required':True, 'type':'string'},
+		}
+	val = Validator(schema)
+	data = None
+
+	session_id = request.headers.get('Authorization')
+	if session_id == None:
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
+
+	tmpAdmin = getUser(session_id)
+	adminRights = users.find_one({"email":tmpAdmin})
+	
+	if not adminRights["category"]=='admin':
+		return Response("This service is available only for admins.", status=500, mimetype="application/json")
+
+	try:
+		data = json.loads(request.data)
+	except Exception as e:
+		return Response("bad json content", status=500, mimetype="application/json")
+
+	if data == None: 
+		return Response("bad json content", status=500, mimetype="application/json")
+
+	if not val.validate(data):
+		return Response("Data not matching required schema. Please check the documentation.", status=500, mimetype="application/json")
+
+	#Check if users Exists
+	searchAdmin = db.users.find_one({"email":data["email"]})
 
 
 
+	if val.validate(data) and searchAdmin == None :
+
+		if not emailCheck(data["email"]):
+			return Response ("Email is not valid. Please retry registering with a valid email address.", status=200,mimetype="application/json")
+
+
+		newAdmin = {"email":data["email"], "firstName":data["firstName"], "surName":data["surName"], "password":"1234", "category":"admin", "firstLogin":1, "passwordReset":0}
+		db.users.insert_one(newAdmin)
+		return Response ("Admin was added successfuly", status=200,mimetype="application/json")
+	else:
+		return Response ("Admin already exists", status=500,mimetype="application/json")
+
+#Password Reset
+@app.route('/passwordReset', methods=['PUT'])
+def passReset():
+	schema = {
+		'oldPass' : {'required':True, 'type':'string'},
+		'newPass' : {'required':True, 'type':'string'},
+		'confirmPass' : {'required':True, 'type':'string'}
+		}
+	val = Validator(schema)
+	data = None
+
+	session_id = request.headers.get('Authorization')
+	if session_id == None:
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
+
+	tmpUser = getUser(session_id)
+	searchUser = users.find_one({'email':tmpUser})
+
+	try:
+		data = json.loads(request.data)
+	except Exception as e:
+		return Response("bad json content", status=500, mimetype="application/json")
+
+	if data == None: 
+		return Response("bad json content", status=500, mimetype="application/json")
+
+	if not val.validate(data):
+		return Response("Data not matching required schema. Please check the documentation.", status=500, mimetype="application/json")
+
+	if val.validate(data) and searchUser != None:
+		#check if old pass is matching existing
+		if data['oldPass']==searchUser['password']:
+			#check if pass and confirm pass matches
+			if data['newPass']== data['confirmPass']:
+				# check if new pass is different than old one & update pass
+				if data['newPass'] != data['oldPass']:
+					users.update_one({'email':tmpUser},
+							{"$set":
+								{
+									"password":data['newPass']
+								}
+							})
+					#check if is first pw reset for admin
+					if searchUser['category']=="admin" and searchUser['passwordReset'] == 0:
+						searchUser = users.update_one({'email':tmpUser},
+							{"$set":
+								{
+									"passwordReset": 1
+								}
+							})
+						#auto logout after password reset
+						del users_sessions[session_id]
+						return ("pass updated. Please re-login.")
+				#auto logout after password reset						
+					del users_sessions[session_id]
+					return ("pass updated")
+				else: 
+					return ("new password can't be the same with old one")
+			else : 
+				return ("new password does not match password confirmation")
+		else : 
+			return ("Given existing password does not match your password")
+
+
+@app.route('/deleteUser/<string:email>', methods=['DELETE'])
+def deleteUser(email):
+	deleteUser = email
+
+	session_id = request.headers.get('Authorization')
+	if session_id == None:
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+
+	if not is_session_valid(session_id):
+		return Response("No active session. Please login", status=500, mimetype="application/json")
+
+	tmpAdmin = getUser(session_id)
+	adminRights = users.find_one({"email":tmpAdmin})
+	
+	if not adminRights["category"]=='admin':
+		return Response("This service is available only for admins.", status=400, mimetype="application/json")
+
+	#Check if users Exists
+	searchUser = db.users.find_one({"email":deleteUser})
+
+	if searchUser != None:
+		users.delete_one({"email":deleteUser})
+		return Response ("User deleted", status=200,mimetype="application/json")
+	else:
+		return Response ("No user found", status=400,mimetype="application/json")
 
 if __name__=='__main__':
 	app.run(host='0.0.0.0', debug=True)
