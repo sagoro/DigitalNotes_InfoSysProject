@@ -5,8 +5,9 @@ import json
 import uuid
 import time
 import datetime
-from bson.json_util import dumps
+#from bson.json_util import dumps
 from cerberus import Validator
+from bson.objectid import ObjectId
 import re
 
 
@@ -181,7 +182,7 @@ def addNote():
 		return Response ("test", status=200,mimetype="application/json")
 
 #Search Note by Title
-@app.route('/searchnote/<string:title>', methods=['GET'])
+@app.route('/notes/search/<string:title>', methods=['GET'])
 def searchNoteTitle(title):
 
 	session_id = request.headers.get('Authorization')
@@ -201,7 +202,7 @@ def searchNoteTitle(title):
 		return Response("Note with title " +title+ " not found", status=500, mimetype="application/json")
 
 	if searchNote !=None:
-		searchNote = [{'title':y["title"],'content':y["content"], 'tags':y["tags"]} for y in searchNote]
+		searchNote = [{"_id":str(y["_id"]), 'title':y["title"],'content':y["content"], 'tags':y["tags"]} for y in searchNote]
 		#return jsonify(searchNote)
 		return Response(json.dumps(searchNote),status=200,mimetype='application/json')
 
@@ -231,11 +232,10 @@ def searchNoteTag(tag):
 		return Response(json.dumps(searchTag),status=200,mimetype='application/json')
 	
 #Update Note
-@app.route('/notes/update/<string:title>', methods=['PATCH'])
-def updateNote(title):
+@app.route('/notes/update/<string:id>', methods=['PATCH'])
+def updateNote(id):
 
 	schema = {
-	'_id': {'required':True, 'type':'string'},
 	'title' : {'required':False, 'type':'string'},
 	'content' : {'required':False, 'type':'string'},
 	'tags' : {'required':False, 'type':'string'},
@@ -254,11 +254,11 @@ def updateNote(title):
 		return Response("No active session. Please login", status=500, mimetype="application/json")
 
 
-	if title == None:
+	if id == None or len(id)!=24:
 		return Response("bad json content", status=500, mimetype="application/json")
 
 	tmpUser = getUser(session_id)
-	query={"title":title, "owner":tmpUser}
+	query={"_id":ObjectId(id)}
 	updateNote = notes.find_one(query)
 
 	if updateNote != None:
@@ -280,16 +280,15 @@ def updateNote(title):
 			# newTitle = data["title"]
 			# newContent = data["content"] 
 			# newTags = data["tags"]  
-			id = updateNote["_id"]
 			key1 = 'title'
 			key2 = 'content'
 			key3 = 'tags'
 
-			updateQuery = {"_id":data['_id']}
+			updateQuery = {"_id":ObjectId(id)}
 			#NA KANW UPDATE ME OBJECT ID
 			
 			if key1 in data:
-				notes.update_one({'title':data['title']},
+				notes.update_one(updateQuery,
 				{"$set":
 					{
 						"title":data[key1]
@@ -297,7 +296,7 @@ def updateNote(title):
 				})
 
 			if key2 in data:
-				notes.update_one({'_id':data['_id']},
+				notes.update_one(updateQuery,
 				{"$set":
 					{
 						"content":data[key2]
@@ -305,25 +304,15 @@ def updateNote(title):
 				})
 
 			if key3 in data:
-				notes.update_one({'_id':data['_id']},
+				notes.update_one(updateQuery,
 				{"$set":
 					{
 						"tags":data[key3].split(',')
 					}
 				})
 
-			# updateNote = notes.update_one(query,{
-			# 	"$set":
-			# 	{
-			# 		"title":data["title"],
-			# 		"content":data["content"],
-			# 		"tags":data["tags"]
-			# 	}
-			# })
-
 			updateNote = notes.find_one({"title":key1})
 			#updateNote = {"title":updateNote["title"], "content":updateNote["content"], "tags":updateNote["tags"], "update message":"note updated successfully"}
-			#return jsonify(updateNote)
 			return ("SUCCESS")
 		return Response ("test", status=200,mimetype="application/json")
 
@@ -342,8 +331,8 @@ def updateNote(title):
 
 
 #Delete Note
-@app.route('/notes/delete/<string:title>', methods=['DELETE'])
-def deleteNote(title):
+@app.route('/notes/delete/<string:id>', methods=['DELETE'])
+def deleteNote(id):
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
@@ -352,23 +341,21 @@ def deleteNote(title):
 	if not is_session_valid(session_id):
 		return Response("No active session. Please login", status=500, mimetype="application/json")
 	
-	if title == None:
+	if id == None or len(id)!=24:
 		return Response("bad json content", status=500, mimetype="application/json")
 
-	tmpUser = getUser(session_id)
-	query={"title":title, "owner":tmpUser}
+	query={"_id":ObjectId(id)}
 	searchNote = notes.find_one(query)
-
-	if searchNote == None:
-		return Response("Not with title " +title+ " not found", status=500, mimetype="application/json")
 
 	if searchNote !=None:	
 		notes.delete_one(query)
 		return Response ("Note deleted", status=200,mimetype="application/json")
+	else :
+		return Response("Not not found", status=500, mimetype="application/json")
 
 
 #Delete Account
-@app.route('/deleteAccount/<string:username>', methods=['GET'])
+@app.route('/deleteAccount', methods=['GET'])
 def deleteAccount(username):
 
 
@@ -382,7 +369,9 @@ def deleteAccount(username):
 	if username == None:
 		return Response("bad json content", status=500, mimetype="application/json")
 
-	query={"email":username}
+	tmpUser = getUser(session_id)
+
+	query={"email":tmpUser}
 	searchUser = users.find(query)
 
 	if searchUser == None:
