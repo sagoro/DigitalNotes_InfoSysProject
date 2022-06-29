@@ -10,7 +10,6 @@ from cerberus import Validator
 from bson.objectid import ObjectId
 import re
 
-
 app = Flask(__name__)
 
 client = MongoClient('mongodb://mongodb:27017/')
@@ -20,15 +19,14 @@ notes = db['notes']
 
 users_sessions = {}
 
-
 """
 Service Support functions
 """
 
 #Create session
-def create_session(username):
+def create_session(email):
     session_id = str(uuid.uuid1())
-    users_sessions[session_id] = (username, time.time())
+    users_sessions[session_id] = (email, time.time())
     return session_id  
 
 #Check if session is valid 
@@ -41,7 +39,7 @@ def getUser(session_id):
 
 #Check if email is valid
 def emailCheck(email):
-	emailRegex = '^[a-z0-9]+[\._]?[a-zA-Za-Z0-9]+[@]\w+[.]\w{2,3}$'
+	emailRegex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 	return re.search(emailRegex,email)
 
 #Check if user is already logged in
@@ -88,19 +86,18 @@ def userRegistration():
 	try:
 		data = json.loads(request.data)
 	except Exception as e:
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if data == None: 
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if not val.validate(data):
-		return Response("Data not matching required schema. Please check the documentation.", status=500, mimetype="application/json")
+		return Response("Data not matching required schema. Please refer to the documentation.", status=400, mimetype="application/json")
 
 	#Check if users Exists
 	searchUser = users.find_one({"email":data["email"]})
 
 	if val.validate(data) and searchUser == None :
-
 		if not emailCheck(data["email"]):
 			return Response ("Email is not valid. Please retry registering with a valid email address.", status=200,mimetype="application/json")
 		newUser = {
@@ -111,9 +108,9 @@ def userRegistration():
 			"category":"simpleUser"
 			}
 		users.insert_one(newUser)
-		return Response ("user was added successfuly", status=200,mimetype="application/json")
+		return Response ("Registration completed! Now you can login.", status=200,mimetype="application/json")
 	else:
-		return Response ("user already exists", status=500,mimetype="application/json")
+		return Response ("User with this email, already exists.", status=400,mimetype="application/json")
 
 #Login
 @app.route('/login', methods=['POST'])
@@ -129,13 +126,13 @@ def userLogin():
 	try:
 		data = json.loads(request.data)
 	except Exception as e:
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if data == None: 
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if not val.validate(data):
-		return Response("Data not matching required schema. Please check the documentation.", status=500, mimetype="application/json")
+		return Response("Data not matching required schema. Please check the documentation.", status=400, mimetype="application/json")
 
 	#Try to bring user details from db
 	searchUser = users.find_one({"email":data["email"]})
@@ -143,24 +140,25 @@ def userLogin():
 	if val.validate(data) and searchUser != None :
 		if searchUser["password"]==data["password"]:
 			if checkLoggedIn(searchUser['email']):
-				return Response("You are already logged in",status=200, mimetype='application/json')	
+				return Response("You are already logged in.",status=200, mimetype='application/json')	
 			user_uuid = create_session(data["email"])
 			res = {
-				"uuid": user_uuid,
+				"Authorization Key": user_uuid,
 				"username": data['email'],
-				"users sessions":users_sessions,
-				"userfromSession":users_sessions[user_uuid][0]
+				"message":"Login successful!",
+				#"users sessions":users_sessions,
+				#"userfromSession":users_sessions[user_uuid][0]
 				}
 
 			#NA DW TO CASE firstLogin=0 kai na min exei kanei pass reset
 			#Check Admin first login
 			if searchUser["category"]=="admin" and searchUser['firstLogin'] == 1 and searchUser['passwordReset']== 0:
 				res = {
-					"uuid": user_uuid,
+					"Authorization Key": user_uuid,
 					"username": data['email'],
-					"users sessions":users_sessions,
-					"userfromSession":users_sessions[user_uuid][0],
-					"message": "Successful login. Please reset your password by following the endpoints ..url../passwordReset"}
+					#"users sessions":users_sessions,
+					#"userfromSession":users_sessions[user_uuid][0],
+					"message": "Successful login. Please reset your password by following the endpoint /passwordReset"}
 				searchUser = users.update_one({'email':data['email']},
 				{"$set":
 					{
@@ -168,15 +166,23 @@ def userLogin():
 					}
 				})
 				return Response(json.dumps(res),status=200, mimetype='application/json')
+			
+			if searchUser["category"]=="admin" and searchUser['firstLogin'] == 0 and searchUser['passwordReset']== 0:
+				res = {
+					"Authorization Key": user_uuid,
+					"username": data['email'],
+					#"users sessions":users_sessions,
+					#"userfromSession":users_sessions[user_uuid][0],
+					"message": "Successful login. Please reset your password by following the endpoint /passwordReset"}
+				return Response(json.dumps(res),status=200, mimetype='application/json')
 
 			return Response(json.dumps(res),status=200, mimetype='application/json')			
 		else:
-			return Response ("Wrong Password", status=400,mimetype="application/json")
+			return Response ("Wrong Password. Please try again.", status=400,mimetype="application/json")
 	else:
-		return Response ("User is not registered", status=400,mimetype="application/json")
+		return Response ("User is not registered.", status=400,mimetype="application/json")
 
 
-#TO DO: LOGOUT
 #Logout
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -185,7 +191,6 @@ def logout():
 		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		#return Response("No active session. Please login", status=500, mimetype="application/json")
 		return Response("You can't logout if you are not logged in...https://bit.ly/3bD9zmQ", status=400, mimetype="application/json")
 
 	tmpUser = getUser(session_id)
@@ -193,34 +198,36 @@ def logout():
 	
 	if isLoggedIn: 
 		del users_sessions[session_id]
-		return Response("Logout completed. Hope to see you back soon! :)", status=200, mimetype="application/json")
+		return Response("Logout completed. Hope to see you back soon!", status=200, mimetype="application/json")
+	else:
+		return Response("You can't logout if you are not logged in...https://bit.ly/3bD9zmQ", status=400, mimetype="application/json")
 
 #Delete Account
-@app.route('/deleteAccount', methods=['GET'])
+@app.route('/deleteAccount', methods=['DELETE'])
 def deleteAccount():
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 
 	tmpUser = getUser(session_id)
 
 	if isAdmin(tmpUser):
-		return Response("This service is available only for simple users.", status=500, mimetype="application/json")
+		return Response("This service is available only for simple users.", status=401, mimetype="application/json")
 
 	query={"email":tmpUser}
 	searchUser = users.find(query)
 
 	if searchUser == None:
-		return Response("Not such user found", status=500, mimetype="application/json")
+		return Response("Not such user found to delete.", status=400, mimetype="application/json")
 
 	if searchUser != None:
 		users.delete_one(query)
 		notes.delete_many({'owner':tmpUser})
-		return Response("Your account and all the data has been deleted.", status=200, mimetype="application/json")
+		return Response("Your account and data have been deleted.", status=200, mimetype="application/json")
 
 
 """
@@ -242,25 +249,25 @@ def addNote():
 		
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("You are not authorized to perform this action. Please try to login first.", status=500, mimetype="application/json")
+		return Response("You are not authorized to perform this action. Please try to login first.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 
 	tmpUser = getUser(session_id) #Get User's email/username
 	if isAdmin(tmpUser):
-		return Response("This service is available only for simple users.", status=500, mimetype="application/json")
+		return Response("This service is available only for simple users.", status=401, mimetype="application/json")
 
 	try:
 		data = json.loads(request.data)
 	except Exception as e:
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if data == None: 
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if not val.validate(data):
-		return Response("Data not matching required schema. Please check the documentation.", status=500, mimetype="application/json")
+		return Response("Data not matching required schema. Please check the documentation.", status=400, mimetype="application/json")
 	
 	if val.validate(data):
 		tags = data["tags"].split(',') #Split comma seperated tags and add to list
@@ -272,7 +279,7 @@ def addNote():
 			"owner":tmpUser
 			}
 		notes.insert_one(newNote)
-		return Response ("Note added successfully", status=200,mimetype="application/json")
+		return Response ("Note created successfully", status=200,mimetype="application/json")
 
 #Search Note by Title
 @app.route('/notes/search/<string:title>', methods=['GET'])
@@ -280,25 +287,26 @@ def searchNoteTitle(title):
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("You are not authorized to perform this action. Please try to login first.", status=500, mimetype="application/json")
+		return Response("You are not authorized to perform this action. Please try to login first.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 
 	tmpUser = getUser(session_id) #Get User's email/username
 	if isAdmin(tmpUser):
-		return Response("This service is available only for simple users.", status=500, mimetype="application/json")
+		return Response("This service is available only for simple users.", status=401, mimetype="application/json")
 
 	if title == None:
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	tmpUser = getUser(session_id)
 	searchNote = notes.find({"title":title, "owner":tmpUser})
 
 	if searchNote == None:
-		return Response("Note with title " +title+ " not found", status=500, mimetype="application/json")
+	#if len(list(searchNote)) == 0: #COULDNT MAKE IT WORK...because if i checked with len(list()) then @Line 309 searchNote was returning 0 items.
+		return Response("Note(s) with title " +title+ " not found", status=200, mimetype="application/json")
 
-	if searchNote !=None:
+	if searchNote != None:
 		searchNote = [
 			{"_id":str(y["_id"]), 'title':y["title"],'content':y["content"], 'tags':y["tags"]} for y in searchNote]
 		#return jsonify(searchNote)
@@ -310,29 +318,27 @@ def searchNoteTag(tag):
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("You are not authorized to perform this action. Please try to login first.", status=500, mimetype="application/json")
+		return Response("You are not authorized to perform this action. Please try to login first.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 	
-	tmpUser = getUser(session_id) #Get User's email/username
+	tmpUser = getUser(session_id)
 	if isAdmin(tmpUser):
-		return Response("This service is available only for simple users.", status=500, mimetype="application/json")
+		return Response("This service is available only for simple users.", status=401, mimetype="application/json")
 
 	if tag == None:
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	tmpUser = getUser(session_id)
 	searchNote = notes.find({"tags":tag, "owner":tmpUser}).sort([("createdDt", pymongo.DESCENDING)])
 
 	if searchNote == None:
-		return Response("Note with tag " +tag+ " not found", status=500, mimetype="application/json")
+		return Response("Note(s) with tag " +tag+ " not found", status=400, mimetype="application/json")
 
 	if searchNote !=None:
 		searchTag = [{'title':y["title"],'content':y["content"], 'tags':y["tags"], "createdDt":y['createdDt']} for y in searchNote]
-		#return jsonify(searchNote)
 		return (jsonify(searchTag))
-		return Response(json.dumps(searchTag),status=200,mimetype='application/json')
 	
 #Update Note by ID
 @app.route('/notes/update/<string:id>', methods=['PATCH'])
@@ -349,19 +355,19 @@ def updateNote(id):
 	session_id = request.headers.get('Authorization')
 
 	if session_id == None:
-		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	session_id = request.headers.get('Authorization')
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 	
 	tmpUser = getUser(session_id) #Get User's email/username
 	if isAdmin(tmpUser):
-		return Response("This service is available only for simple users.", status=500, mimetype="application/json")
+		return Response("This service is available only for simple users.", status=401, mimetype="application/json")
 
 	if id == None or len(id)!=24:
-		return Response("Pass valid note ID", status=500, mimetype="application/json")
+		return Response("Please provide valid Note ID", status=400, mimetype="application/json")
 
 	query={"_id":ObjectId(id)}
 	updateNote = notes.find_one(query)
@@ -370,13 +376,13 @@ def updateNote(id):
 		try:
 			data = json.loads(request.data)
 		except Exception as e:
-			return Response("bad json content", status=500, mimetype="application/json")
+			return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 		if data == None: 
-			return Response("bad json content", status=500, mimetype="application/json")
+			return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 		if not val.validate(data):
-			return Response("Data not matching required schema. Please check the documentation.", status=500, mimetype="application/json")
+			return Response("Data not matching required schema. Please check the documentation.", status=400, mimetype="application/json")
 
 		if val.validate(data):
 
@@ -412,9 +418,9 @@ def updateNote(id):
 
 			updateNote = notes.find_one({"title":key1})
 			return Response ("Note updated successfully.", status=200,mimetype="application/json")
-		return Response ("Schema not valid", status=200,mimetype="application/json")
+		return Response ("Schema not valid", status=400,mimetype="application/json")
 	else:
-		return Response("Note does not exist. System couldn't proceed with update. ", status=500, mimetype="application/json")
+		return Response("Note does not exist. System couldn't proceed with update. ", status=400, mimetype="application/json")
 
 #Delete Note by ID
 @app.route('/notes/delete/<string:id>', methods=['DELETE'])
@@ -422,17 +428,17 @@ def deleteNote(id):
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 	
 	tmpUser = getUser(session_id) #Get User's email/username
 	if isAdmin(tmpUser):
-		return Response("This service is available only for simple users.", status=500, mimetype="application/json")
+		return Response("This service is available only for simple users.", status=401, mimetype="application/json")
 	
 	if id == None or len(id)!=24:
-		return Response("Pass valid note ID.", status=500, mimetype="application/json")
+		return Response("Please provide valid Note ID", status=400, mimetype="application/json")
 
 	query={"_id":ObjectId(id)}
 	searchNote = notes.find_one(query)
@@ -441,25 +447,25 @@ def deleteNote(id):
 		notes.delete_one(query)
 		return Response ("Note deleted", status=200,mimetype="application/json")
 	else :
-		return Response("Not not found", status=500, mimetype="application/json")
+		return Response("Note not found. Couldn't proceed with deletion.", status=400, mimetype="application/json")
 
 #Get All Notes
 @app.route('/getnotes/<string:sortType>', methods=['GET'])
 def getNotes(sortType):
 
 	if sortType!='desc' and sortType!='asc':
-		return Response("Sorting option not valid. Please check documentation and try again", status=500, mimetype="application/json")
+		return Response("Sorting option not valid. Please check documentation and try again", status=400, mimetype="application/json")
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 
 	tmpUser = getUser(session_id)
 	if isAdmin(tmpUser):
-		return Response("This service is available only for simple users.", status=500, mimetype="application/json")
+		return Response("This service is available only for simple users.", status=401, mimetype="application/json")
 
 	if sortType=='desc':
 		cursor = db.notes.find({"owner":tmpUser}).sort([("createdDt", pymongo.DESCENDING)])
@@ -491,39 +497,39 @@ def addAdmin():
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 
 	tmpAdmin = getUser(session_id)
 		
 	if not isAdmin(tmpAdmin):
-		return Response("This service is available only for admins.", status=500, mimetype="application/json")
+		return Response("This service is available only for admins.", status=401, mimetype="application/json")
 
 	try:
 		data = json.loads(request.data)
 	except Exception as e:
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if data == None: 
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if not val.validate(data):
-		return Response("Data not matching required schema. Please check the documentation.", status=500, mimetype="application/json")
+		return Response("Data not matching required schema. Please check the documentation.", status=400, mimetype="application/json")
 
 	#Check if users Exists
 	searchAdmin = db.users.find_one({"email":data["email"]})
 
 	if val.validate(data) and searchAdmin == None :
 		if not emailCheck(data["email"]):
-			return Response ("Email is not valid. Please retry registering with a valid email address.", status=200,mimetype="application/json")
+			return Response ("Email is not valid. Please retry registering with a valid email address.", status=400,mimetype="application/json")
 
 		newAdmin = {"email":data["email"], "firstName":data["firstName"], "surName":data["surName"], "password":"1234", "category":"admin", "firstLogin":1, "passwordReset":0}
 		db.users.insert_one(newAdmin)
 		return Response ("Admin was added successfuly", status=200,mimetype="application/json")
 	else:
-		return Response ("Admin already exists", status=500,mimetype="application/json")
+		return Response ("Admin with this email already exists.", status=400,mimetype="application/json")
 
 #Password Reset
 @app.route('/passwordReset', methods=['PUT'])
@@ -539,10 +545,10 @@ def passReset():
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 
 	tmpUser = getUser(session_id)
 	searchUser = users.find_one({'email':tmpUser})
@@ -550,13 +556,13 @@ def passReset():
 	try:
 		data = json.loads(request.data)
 	except Exception as e:
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if data == None: 
-		return Response("bad json content", status=500, mimetype="application/json")
+		return Response("Bad json content. Please try again.", status=400, mimetype="application/json")
 
 	if not val.validate(data):
-		return Response("Data not matching required schema. Please check the documentation.", status=500, mimetype="application/json")
+		return Response("Data not matching required schema. Please check the documentation.", status=400, mimetype="application/json")
 
 	if val.validate(data):
 		#check if old pass is matching existing
@@ -581,18 +587,18 @@ def passReset():
 							})
 						#auto logout after password reset
 						del users_sessions[session_id]
-						return ("Password updated successfully. Please re-login.")
+						return Response("Password updated successfully. Please re-login.", status=200, mimetype="application/json")
 					#auto logout after password reset						
 					del users_sessions[session_id]
-					return ("Password updated successfully. Please re-login.")
+					return Response("Password updated successfully. Please re-login.", status=200, mimetype="application/json")
 				else: 
-					return ("New password can't be the same with old one.")
+					return Response("New password can't be the same with old one.", status=400, mimetype="application/json")
 			else : 
-				return ("New password does not match password confirmation.")
+				return Response("New password does not match password confirmation.", status=400, mimetype="application/json")
 		else : 
-			return ("Given 'Current Password' does not match your password.")
+			return Response("Given 'Current Password' does not match your password.", status=400, mimetype="application/json")
 	else :
-		return ("Data not matching required schema. Please check the documentation.")
+		return Response("Data not matching required schema. Please check the documentation.", status=400, mimetype="application/json")		
 
 #Admin Delete User
 @app.route('/deleteUser/<string:email>', methods=['DELETE'])
@@ -601,24 +607,24 @@ def deleteUser(email):
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=500, mimetype="application/json")
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("No active session. Please login", status=500, mimetype="application/json")
+		return Response("No active session. Please login", status=401, mimetype="application/json")
 
 	tmpAdmin = getUser(session_id)
 		
 	if not isAdmin(tmpAdmin):
-		return Response("This service is available only for admins.", status=400, mimetype="application/json")
+		return Response("This service is available only for admins.", status=401, mimetype="application/json")
 
 	#Check if users Exists
 	searchUser = db.users.find_one({"email":deleteUser})
 
 	if searchUser != None:
 		users.delete_one({"email":deleteUser})
-		return Response ("User deleted", status=200,mimetype="application/json")
+		return Response ("User deleted.", status=200,mimetype="application/json")
 	else:
-		return Response ("No user found", status=400,mimetype="application/json")
+		return Response ("No user found. Could not proceed with deletion.", status=400,mimetype="application/json")
 
 
 """
