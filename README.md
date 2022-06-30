@@ -1,10 +1,70 @@
 # YpoxreotikiErgasia22_e16001_Agoropoulos_Stelios
 Εργασία εξαμήνου για το μάθημα "Πληροφοριακά Συστήματα" Εαρινό 2022 - Αγορόπουλος Στέλιος e16001
+Για οποιαδήποτε πληροφορία σχετικά με την εργασία, μπορείτε να επικοινωνήσετε μαζί μου στο sagoropoulos@gmail.com
 
+# Οδηγίες εγκατάστασης & εκτέλεσης
+
+Για να καταστεί εφικτή η εκτέλεση του παραπάνω συστήματος, απαιτείται η εγκατάσταση του Docker και του Docker Compose.
+
+#### Docker Desktop & Docker Compose
+
+Υπάρχει διαθέσιμη εφαρμογή "Docker Desktop" για Mac,Windows και Linux,  η οποία περιλαμβάνει το Docker και το Docker Compose.
+Το μόνο που χρειάζεται να κάνει ο χρήστης είναι να κατεβάσει το εκτελέσιμο αρχείο και να προχωρήσει στην εγκατάσταση.
+Download Link : https://www.docker.com/products/docker-desktop/
+
+Αναλυτικές οδηγίες εγκατάστασης και System Requirements ανα πλατφόρμα, μπορούν να βρεθούν εδώ : https://docs.docker.com/desktop/
+
+### Εγκατάσταση Docker για Linux
+
+Για την εγκατάσταση του Docker σε Linux είναι απαραίτητη η εκτέλεση των παρακάτω εντολών στο Terminal.
+
+```
+ $ sudo apt-get update
+ 
+ $ sudo apt install -y apt-transport-https ca-certificates curl software-properties-common
+ 
+ $ curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key
+add -
+
+ $ sudo add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+ $ sudo apt-get update
+
+ $ sudo apt install docker-ce
+```
+
+### Εγκατάσταση Docker Compose για Linux
+
+Για την εγκατάσταση του Docker Compose plugin σε Linux είναι απαραίτητη η εκτέλεση των παρακάτω εντολών στο Terminal.
+```
+ $ sudo apt-get update
+ $ sudo apt-get install docker-compose-plugin
+```
+
+## Containerization & Εκτέλεση Εφαρμογής
+
+Αρχικά, θα πρέπει να γίνει clone το συγκεκριμένο Repository ή Download as ZIP και να βάλετε τα περιεχομενα του σε ένα directory στο σύστημά σας.
+
+Στη συνέχεια, έχοντας εγκαταστήσει το Docker και το Docker Compose, για να δημιουργήσουμε μια Containerized εκδοχή της εφαρμογή μας που θα αλληλεπιδρά με την MongoDB θα πρέπει να εκτελεστεί η παρακάτω εντολή : 
+
+```
+ $ (sudo) docker-compose up -d
+```
+
+Για τον τερματισμό της εφαρμογής θα πρέπει να εκτελεστεί η παρακάτω εντολή : 
+```
+ $ (sudo) docker-compose up -d
+```
 
 # Λειτουργίες συστήματος
 
-Παρακάτω 
+Παρακάτω, μπορείτε να διαβάσετε αναλυτικά όλες τις λειτουργίες του συστήματος. Δίνονται αναλυτικές πληροφορίες για κάθε endpoint, καθώς και παραδείγματα εκτελέσεων.
+
+### Δοκιμές λειτουργιών
+Επιπλέον, έχει γίνει publish ένα Workspace στο Postman, το οποίο μπορείτε να χρησιμοποιήσετε για να πραγματοποιήσετε όλες τις απαραίτητες δοκιμές.
+**Είναι απαραίτητο να έχετε λογαριασμό στο Postman**.
+
+Workspace URL : https://www.postman.com/gold-crescent-810855/workspace/infosys-python-e16001-agoropoulos-stelios/overview
 
 ## Authentication Scheme & Session Management
 
@@ -72,12 +132,12 @@
 <b>POST</b> /register
 </pre>
 
-***Authorization required*** : No<br/>
-***Permissions required*** : None
+*Authorization required* : **No**<br/>
+*Permissions required* : **None**
 
 **Request Body Schema**
 ```json
- {
+{
 	"email" : "sagoropoulos@gmail.com",
 	"firstName" : "Stelios", 
 	"surName" : "Agoropoulos",
@@ -101,7 +161,7 @@
 
 Επιτυχής εγγραφή : https://prnt.sc/IhadTq4GkTk3
 
-Wrong Request Body: https://prnt.sc/Nb6yqjyvGU8o
+Το Request Body δεν καλύπτει το Required Schema: https://prnt.sc/Nb6yqjyvGU8o
 
 Το email αντιστοιχεί σε άλλον χρήστη : https://prnt.sc/2D5u6oayh9_e
 
@@ -115,34 +175,48 @@ Wrong Request Body: https://prnt.sc/Nb6yqjyvGU8o
 <b>POST</b> /login
 </pre>
 
-Authorization required : **No**
-
-Permissions required : **None**
+*Authorization required* : **No**<br/>
+*Permissions required* : **None**
 
 
 **Request Body Schema**
 ```json
- {
+{
 	"email" : "sagoropoulos@gmail.com",
 	"password" : "pass", 
 }
 ```
 
 **Απλός χρήστης**<br/>
-: Ο χρήστης εφόσον έχει πραγματοποιήσει την εγγραφή του, μπορεί να κάνει απόπειρα εισόδου στο σύστημα. Σε περίπτωση που το email δεν αντιστοιχεί σε κάποιον χρήστη, η υπηρεσία θα ενημερώσει με κατάλληλο μήνυμα.
+Ο χρήστης εφόσον έχει πραγματοποιήσει την εγγραφή του, μπορεί να κάνει απόπειρα εισόδου στο σύστημα.
+Σε περίπτωση που το email δεν αντιστοιχεί σε κάποιον χρήστη, η υπηρεσία θα ενημερώσει με κατάλληλο μήνυμα.
 Επίσης, αν ο κωδικός είναι λάθος, τότε το endpoint θα επιστρέψει το αντίστοιχο μήνυμα.
 
-: Σε περίπτωση που τα στοιχεία που δώσει είναι σωστά (email & κωδικός), τότε
+Σε περίπτωση που τα στοιχεία που δώσει είναι σωστά (email & κωδικός), τότε
 θα εισέλθει επιτυχώς στο σύστημα, θα ενημερωθεί κατάλληλα και το σύστημα θα του επιστρέψει το ***session_id*** του, ώστε να μπορεί να το χρησιμοποιεί για το Authorization του στις 
 υπόλοιπες υπηρεσίες του συστήματος.
 
 **Διαχειριστής**<br/>
-: Για την είσοδο ενός διαχειριστή, ισχύουν τα παραπάνω που αφορούν και τους απλούς χρήστες. Επιπλέον όμως, όταν ένας διαχειριστής κάνει είσοδο στο σύστημα για πρώτη φορά, θα του ζητηθεί να 
+Για την είσοδο ενός διαχειριστή, ισχύουν τα παραπάνω που αφορούν και τους απλούς χρήστες. Επιπλέον όμως, όταν ένας διαχειριστής κάνει είσοδο στο σύστημα για πρώτη φορά, θα του ζητηθεί να 
 αλλάξει τον προσωρινό κωδικό του. Σε περίπτωση που δεν τον αλλάξει και συνδεθεί ξανά (και ας μην είναι η πρώτη φορά), θα γίνει εκ νέου υπενθύμιση για αλλαγή κωδικού.
 Η υπενθύμιση θα σταματήσει να εμφανίζεται, όταν ο διαχειριστής αλλάξει τον προσωρινό κωδικό του.
 
+Παρακάτω δίνονται δύο Demo Accounts.
+
+#### User Demo Login
+**User 1**
+email: sagoropoulos@gmail.com
+password : 12345
+
+
+#### Admin Demo Login
+Για είσοδο στο σύστημα με Admin Λογαριασμό 
+email : admin@infosys.gr
+password : 123
 
 ### Παραδείγματα εκτέλεσης
+
+Το Request Body δεν καλύπτει το Required Schema : https://prnt.sc/RTl9Ld99SSO9
 
 Επιτυχής είσοδος : https://prnt.sc/M79Cf9B-tfYX
 
@@ -161,77 +235,92 @@ Permissions required : **None**
 <b>PUT</b> /passwordReset
 </pre>
 
-Authorization & Permission
-: **Authοrization required** : YES
-: **Permissions required** : Admin or User
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **Admin or User**
 
 **Required Headers**
 ```js
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
 
 **Request Body Schema**
 ```json
- {
+{
 	"oldPass" : "1234",
 	"newPass" : "123456", 
 	"confirmPass" : "123456",
 }
 ```
 
-Για την επιτυχή αλλαγή του κωδικού, θα πρέπει ο παλιός κωδικός να είναι ίδιος με αυτόν που έχει δώσει ο χρήστης στο request του, ο παλιός κωδικός του body να διαφέρει από τον νέο και τέλος ο νέος κωδικός να είναι ίδιος με το password confirmation. Σε οποιαδήποτε περίπτωση λάθους, το μήνυμα επιστρέφει το κατάλληλο μήνυμα.
+Για την επιτυχή αλλαγή του κωδικού, θα πρέπει: 
+1. Το request body να καλύπτει το παραπάνω Required Schema.
+2. ο παλιός κωδικός του χρήστη στο σύστημα να είναι ίδιος με αυτόν που έχει δώσει στο request του
+3. ο παλιός κωδικός του body να διαφέρει από τον νέο κωδικό
+4. ο νέος κωδικός να είναι ίδιος με το password confirmation.
+
+Σε οποιαδήποτε περίπτωση λάθους, το σύστημα επιστρέφει κατάλληλο μήνυμα. Μόλις η διαδικασία ολοκληρωθεί με επιτυχία, το σύστημα κάνει αυτόματα logout τον χρήστη, του επιστρέφει μήνυμα επιτυχίας και του ζητάει να συνδεθεί ξανά.
 
 ### Παραδείγματα εκτέλεσης
 
-Επιτυχία εύρεση σημείωσης/σημειώσεων : 
+To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/eZpZruvgxrU_
 
-Αποτυχία εύρεσης σημείωσης/σημειώσεων :
+Ο κωδικός στο σύστημα διαφέρει με αυτόν του request: https://prnt.sc/Ciq0etmF91Tz
 
+Ο παλιός κωδικός είναι ίδιος με το νέο: https://prnt.sc/MpXHRT81QFYc
+
+Ο νέος κωδικός δεν ταιριάζει με την επιβεβαίωση: https://prnt.sc/Gq5Eew4R_h55
+
+Επιτυχής αλλαγή κωδικού: https://prnt.sc/uxtZITCvGOI6
 
 ## Έξοδος από το σύστημα (Logout)
 
-Με το συγκεκριμένο resource, οι χρήστες μπορούν να πραγματοποιήσουν έξοδο από το πληροφοριακό σύστημα.
+Οι χρήστες μπορούν να αποσυνδεθούν από τον λογαριασμό τους.
 
 **Endpoint**
 <pre>
 <b>POST</b> /logout
 </pre>
 
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **Admin or User**
+
 **Required Headers**
 ```js
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
 
 Σε περίπτωση που ένας χρήστης θέλει να πραγματοποιήσει έξοδο από το σύστημα, μπορεί να χρησιμοποιήσει το συγκεκριμένο endpoint.</br>
-**Είναι απαραίτητη η χρήστη του Authorization Header**.</br>
 
-Αν ο χρήστης δεν έχει πραγματοποιήσει είσοδο στο σύστημα και προσπαθήσει να κάνει logout θα του εμφανιστεί το κατάλληλο μήνυμα. </br>
+Το σύστημα εντοπίζει τον χρήστη από το authorization key του και προσπαθεί να τον αποσυνδέσει από το σύστημα. Αν ο χρήστης δεν έχει πραγματοποιήσει είσοδο στο σύστημα και προσπαθήσει να κάνει logout θα του εμφανιστεί το κατάλληλο μήνυμα. </br>
 Σε περίπτωση που η έξοδος από το σύστημα πραγματοποιηθεί με επιτυχία, ο χρήστης θα ενημερωθεί αντίστοιχα.
 
 
-[comment]: <> (ADD NOTE)
+### Παραδείγματα εκτέλεσης
+
+Επιτυχής αποσύνδεση: https://prnt.sc/7YzdG1N3YRhd
+
+Ο χρήστης δεν είχε κάνει login: https://prnt.sc/YjzypHxQZgjo
 
 
 ## Διαγραφή λογαριασμού & δεδομένων (Delete Account)
 
-Διαγραφή του λογαριασμού του και των δεδομένων του από έναν χρήστη.
+Διαγραφή του λογαριασμού και των δεδομένων του από έναν χρήστη.
 
 **Endpoint**
 <pre>
 <b>DELETE</b> /deleteAccount
 </pre>
 
-Authorization & Permission
-: **Authοrization required** : YES
-: **Permissions required** : User
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **User**
 
 **Required Headers**
 ```json
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
@@ -241,19 +330,20 @@ Authorization & Permission
 
 ### Παραδείγματα εκτέλεσης
 
-Επιτυχής διαγραφή χρήστη και δεδομένων : 
+Επιτυχής διαγραφή χρήστη και δεδομένων : https://prnt.sc/rJg2ufCugFDv
 
 
 ## Δημιουργία σημείωσης (Add Note)
 
-Με το συγκεκριμένο resource, ένας χρήστης μπορεί δημιουργήσει μια σημείωση.
+Ένας χρήστης μπορεί δημιουργήσει μια σημείωση.
 
 **Endpoint**
 <pre>
 <b>POST</b> /notes/add
 </pre>
 
-**Auth required** : YES
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **User**
 
 **Required Headers**
 ```json
@@ -264,7 +354,7 @@ Authorization & Permission
 
 **Request Body Schema**
 ```json
- {
+{
 	"title" : "My first note!",
 	"content" : "This is a dummy note.", 
 	"tags" : "Tag1,Tag2,Tag3"
@@ -280,6 +370,12 @@ Authorization & Permission
 Σε περίπτωση που το request body δεν καλύπτει το απαιτούμενο schema όπως περιγράφεται παραπάνω, το σύστημα δεν θα προχωρήσει στην δημιουργία σημείωσης και θα επιστρέψει κατάλληλο μήνυμα.
 Αν το request body περιέχει όλα τα απαραίτητα στοιχεία, η σημείωση θα δημιουργηθεί και θα επιστραφεί το αντίστοιχο μήνυμα.
 
+### Παραδείγματα εκτέλεσης
+
+To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hLmmGQco3HFz
+
+Επιτυχής δημιουργία σημείωσης: https://prnt.sc/vSqCHepD1uT1
+
 
 ## Αναζήτηση σημείωσης με τίτλο (Search Note by Title)
 
@@ -291,29 +387,31 @@ Authorization & Permission
 <b>POST</b> /notes/search/<b>{title}</b>
 </pre>
 
-**Options:**
+**Parameters:**
 | Name | Type | Description |
 | :----- |  :----- | :----- |
 | title | String | A string with note's title. | 
 
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **User**
+
 **Required Request Headers**
 ```json
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
 
 Ένας χρήστης μπορεί να αναζητήσει μια ή περισσότερες σημειώσεις βάσει τίτλου.
-Με αυτό τον τρόπο θα μπορέσει να πάρει και το μοναδικό ID της κάθε σημείωσης, ώστε στη συνέχεια να μπορέσει να πραγματοποιήσει επιπλέον ενέργειες (update, delete etc.)
+Με αυτό τον τρόπο θα μπορέσει να πάρει και το μοναδικό ID της κάθε σημείωσης, ώστε στη συνέχεια να μπορέσει να πραγματοποιήσει επιπλέον ενέργειες (update, delete etc.).
 Για την αναζήτηση της σημείωσης θα πρέπει ο χρήστης στο endpoint να δώσει και τον τίτλο της σημείωσης.
 Στη συνέχεια το σύστημα θα επιστρέψει όλες τις σημειώσεις που έχουν τον τίτλο που δόθηκε. Σε περίπτωση που δεν υπάρχει σημείωση, θα επιστραφεί κενό.
 
 ### Παραδείγματα εκτέλεσης
 
-Επιτυχία εύρεση σημείωσης/σημειώσεων : 
+Επιτυχία εύρεσης σημείωσης/σημειώσεων : https://prnt.sc/yhvv32TerrvA
 
-Αποτυχία εύρεσης σημείωσης/σημειώσεων :
-
+Αποτυχία εύρεσης σημείωσης/σημειώσεων : https://prnt.sc/8XXlPlOONzI1
 
 
 ## Αναζήτηση σημείωσης με λέξει κλειδί (Search Note by Tag)
@@ -330,28 +428,31 @@ Authorization & Permission
 | :----- |  :----- | :----- |
 | tag | String | A string with tag you want to search. | 
 
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **User**
+
 **Required Headers**
 ```json
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
 
 Ένας χρήστης μπορεί να αναζητήσει μια ή περισσότερες σημειώσεις βάσει μιας λέξης κλειδί.
-Για την αναζήτηση της σημείωσης θα πρέπει ο χρήστης στο endpoint να δώσει και την λέξει κλειδί για την οποία θέλει να πραγματοποιήσει την αναζήτηση.
+Για την αναζήτηση της σημείωσης θα πρέπει ο χρήστης στο endpoint να δώσει και την λέξη κλειδί για την οποία θέλει να πραγματοποιήσει την αναζήτηση.
 Στη συνέχεια το σύστημα θα επιστρέψει όλες τις σημειώσεις που περιέχουν την ζητούμενη λέξη κλειδί **σε φθίνουσα σειρά βάσει της ημερομηνίας δημιουργίας** (πιο πρόσφατες προς πιο παλιές). Σε περίπτωση που δεν υπάρχει σημείωση που να ικανοποιεί την αναζήτησή, θα επιστραφεί κατάλληλο μήνυμα.
 
 ### Παραδείγματα εκτέλεσης
 
-Επιτυχία εύρεση σημείωσης/σημειώσεων : 
+Επιτυχία εύρεση σημείωσης/σημειώσεων :  https://prnt.sc/3mjnP4yKVWp-
 
-Αποτυχία εύρεσης σημείωσης/σημειώσεων :
+Αποτυχία εύρεσης σημείωσης/σημειώσεων : https://prnt.sc/kT_A906CAh81
 
 
 
 ## Διόρθωση/αλλαγή υπάρχουσας σημείωσης (Update note)
 
-Διόρθωση/αλλαγή των πεδίων μιας υπάρχουσαν σημείωσης
+Διόρθωση/αλλαγή των πεδίων μιας υπάρχουσαν σημείωσης.
 
 **Endpoint**
 <pre>
@@ -363,9 +464,12 @@ Authorization & Permission
 | :----- |  :----- | :----- |
 | id | hex | Note's id. Provided by "Search by Title" endpoint. | 
 
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **User**
+
 **Required Headers**
 ```json
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
@@ -386,9 +490,9 @@ Authorization & Permission
 ```
 
 Ένας χρήστης μπορεί να πραγματοποιήσει αλλαγή σε **οποιαδήποτε** από τις τρείς παρακάτω τιμές μιας σημείωσης: 
-: Τίτλος σημείωσης
-: Περιεχόμενο
-: Λέξεις κλειδιά
+- Τίτλος σημείωσης
+- Περιεχόμενο
+- Λέξεις κλειδιά
 
 Για την εύρεση και διόρθωση της σημείωσης που επιθυμεί ο χρήστης **θα πρέπει στο endpoint να δώσει το id** (μπορεί να το βρει από το "Search by Title" endpoint).
 Σε περίπτωση που δεν βρεθεί σημείωση με το δοθέν id, τότε το σύστημα θα επιστρέψει και πάλι στον χρήστη το κατάλληλο μήνυμα.
@@ -397,19 +501,13 @@ Authorization & Permission
 
 ### Παραδείγματα εκτέλεσης
 
-id is missing : 
+Το id δεν είναι valid(hex or 24digit)) : https://prnt.sc/7fLAVwQiQLet
 
-Το id δεν είναι valid(hex or 24digit)) : 
+Το Request Body δεν καλύπτει το schema : https://prnt.sc/7wqMLuLtpy3u
 
-Το Request Body δεν καλύπτει το schema : 
+Η σημείωση έγινε update με επιτυχία : https://prnt.sc/ojho-_Nf1U1k
 
-Η σημείωση έγινε update με επιτυχία : 
-
-Δεν βρέθηκε η σημείωση που ζητήθηκε : 
-
-
-
-
+Δεν βρέθηκε η σημείωση που ζητήθηκε : https://prnt.sc/AUcmx-73jUia
 
 
 ## Διαγραφή σημείωσης (Delete note)
@@ -426,9 +524,12 @@ id is missing :
 | :----- |  :----- | :----- |
 | id | 24-digit hex | Note's id. Provided by "Search by Title" endpoint. | 
 
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **User**
+
 **Required Headers**
 ```json
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
@@ -440,14 +541,11 @@ id is missing :
 
 ### Παραδείγματα εκτέλεσης
 
-id is missing : 
+Το id δεν είναι valid(24-digit hex) : https://prnt.sc/Dx7Itj3NCA1o
 
-Το id δεν είναι valid(24-digit hex) : 
+Δεν βρέθηκε η σημείωση που ζητήθηκε : https://prnt.sc/yNcSj6yxaGSz
 
-Δεν βρέθηκε η σημείωση που ζητήθηκε : 
-
-Η σημείωση διαγράφηκε με επιτυχία : 
-
+Η σημείωση διαγράφηκε με επιτυχία : https://prnt.sc/_mGmB_I4evcf
 
 
 ## Εύρεση όλων των σημειώσεων του χρήστη (Get All Notes)
@@ -464,61 +562,56 @@ id is missing :
 | :-----   |  :-----   |  :-----   | :----- 											  |
 | sortType |  String   | asc, desc | Note's id. Provided by "Search by Title" endpoint.|
 
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **User**
+
 **Required Headers**
 ```json
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
 
 Ένας χρήστης μπορεί να πραγματοποιήσει αναζήτηση όλων των σημειώσεων του.
 Είναι απαραίτητο ο χρήστης να επιλέξει την χρονολογική σειρά με την οποία θα εμφανίζονται οι σημειώσεις τους, δίνοντας το κατάλληλο parameter. Οι επιλογές είναι οι εξής : 
-: asc : ASCENDING->ταξινόμηση από την πιο παλιά προς τις νεότερες
-: desc : DESCENDING -> ταξινόμηση από τις νεότερες προς τις πιο παλιές
+- asc : ASCENDING->ταξινόμηση από την πιο παλιά προς τις νεότερες
+- desc : DESCENDING -> ταξινόμηση από τις νεότερες προς τις πιο παλιές
 
-Σε περίπτωση που δεν βρεθούν σημειώσεις, το σύστημα θα επιστρέψει ένα κενό payload. Διαφορετικά θα επισρέψει όλες τις σημειώσεις του χρήστη, ταξινομημένες σύμφωνα με την επιλογή του.
+Σε περίπτωση που δεν βρεθούν σημειώσεις, το σύστημα θα επιστρέψει ένα κενό payload. Διαφορετικά θα επιστρέψει όλες τις σημειώσεις του χρήστη, ταξινομημένες σύμφωνα με την επιλογή του.
 
 ### Παραδείγματα εκτέλεσης
 
-sortType is missing : 
+Λάθος parameter ***sortType*** : https://prnt.sc/ZxIbVxO5SkY9 
 
-Δεν βρέθηκαν σημειώσεις : 
+Δεν βρέθηκαν σημειώσεις :  
 
-Επιτυχής εύρεση σημειώσεων : 
+Επιτυχής εύρεση σημειώσεων σε αύξουσα σειρά : https://prnt.sc/mZOnXeFHIh_T
 
+Επιτυχής εύρεση σημειώσεων σε φθίνουσα σειρά : https://prnt.sc/cZgY6ZGh-lTd
 
-
-# Admin Operations
-Παρακάτω ακολουθεί περιγραφή των endpoints που μπορούν να χρησιμοποιηθούν από τους διαχειριστές.
-
-### Διαθέισμα Endpoints
-: POST /addAdmin
-: DELETE /deleteUser/{email}
 
 ## Εισαγωγή νέου διαχειριστή (Add Admin)
 
-Με το συγκεκριμένο resource, ένας διαχειριστής μπορεί να εισάγει έναν νέο διαχειριστή στην υπηρεσία.
+Ένας διαχειριστής μπορεί να εισάγει έναν νέο διαχειριστή στην υπηρεσία.
 
 **Endpoint**
 <pre>
 <b>POST</b> /addAdmin
 </pre>
 
-Authorization & Authentication
-: **Auth required** : YES
-: **Permissions required** : Admin
-
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **Admin**
 
 **Required Headers**
 ```json
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
 
 **Request Body Schema**
 ```json
- {
+{
 	"email" : "admin2@infosys.gr",
 	"firstName" : "John", 
 	"surName" : "Doe"
@@ -531,13 +624,20 @@ Authorization & Authentication
 - Όνομα
 - Επώνυμο
 
-Σε περίπτωση που το request body δεν καλύπτει το απαιτούμενο schema όπως περιγράφεται παραπάνω, το σύστημα δεν θα προχωρήσει στην δημιουργία του λογαριασμού διαχειριστεί και θα επιστρέψει κατάλληλο μήνυμα.
+Σε περίπτωση που το request body δεν καλύπτει το απαιτούμενο schema όπως περιγράφεται παραπάνω, το σύστημα δεν θα προχωρήσει στην δημιουργία του λογαριασμού διαχειριστή και θα επιστρέψει κατάλληλο μήνυμα.
 Αν το Request body  γίνει αποδεκτό, γίνεται validation του email format. Σε περίπτωση που το format είναι λανθασμένο, εμφανίζεται αντίστοιχο μήνυμα.
 Σε περίπτωση που το email που δόθηκε αντιστοιχεί σε κάποιον διαχειριστή, τότε θα εμφανιστεί και πάλι το κατάλληλο μήνυμα.
 Μόλις όλοι οι έλεγχοι ολοκληρωθούν με επιτυχία δημιουργείται ο νέος λογαριασμός του διαχειριστή με έναν προσωρινό κωδικό και flag για password reset. 
 
+### Παραδείγματα εκτέλεσης
 
+Το Request Body δεν καλύπτει το schema : https://prnt.sc/SZCakDNdE2hH
 
+To email είναι λανθασμένο : https://prnt.sc/ohOgWRqKMnXO
+
+Υπάρχει ήδη διαχειριστής με αυτό το email : https://prnt.sc/eIhPd6qbYmW0
+
+Επιτυχής εισαγωγή διαχειριστή : https://prnt.sc/QEMQpzXlo206
 
 
 ## Διαγραφή χρήστη (Delete user)
@@ -549,31 +649,28 @@ Authorization & Authentication
 <b>DELETE</b> /deleteUser<b>{email}</b>
 </pre>
 
-Authorization & Authentication
-: **Auth required** : YES
-: **Permissions required** : Admin
-
 **Parameters:**
 | Name | Type | Description |
 | :----- |  :----- | :----- |
 | email | String | User's email to delete account | 
 
+*Authorization required* : **Yes**<br/>
+*Permissions required* : **Admin**
+
 **Required Headers**
 ```json
- {
+{
 	"Authorization" : session_id (provided by system after succesful login)
 }
 ```
 
 Οι διαχειριστές μπορούν να προχωρήσουν στην διαγραφή του λογαριασμού ενός χρήστη.
-Για την εύρεση και διαγραφή του λογαριασμού του χρήστης, ο διαχειριστής **θα πρέπει στο endpoint να δώσει το email του χρήστη** που επιθυμεί να διαγράψει.
+Για την εύρεση και διαγραφή του λογαριασμού του χρήστης, ο διαχειριστής **θα πρέπει στο endpoint να δώσει σαν parameter το email του χρήστη** που επιθυμεί να διαγράψει.
 Σε περίπτωση που δεν βρεθεί ο χρήστης με το δοθέν email/username, τότε το σύστημα θα επιστρέψει το κατάλληλο μήνυμα.
-Αν η διαδικασία ολοκληρωθεί κανονικά, επιστρέφεται μήνυμα επιτυχίας.
+Αν η διαδικασία ολοκληρωθεί σωστά, επιστρέφεται μήνυμα επιτυχίας.
 
 ### Παραδείγματα εκτέλεσης
 
-id is missing : 
+Επιτυχής διαγραφή ενός χρήστη : https://prnt.sc/zozYwCdhr0em
 
-Το id δεν είναι valid(24-digit hex) : 
-
-Δεν βρέθηκε η σημείωση που ζητήθηκε : 
+Ο χρήστης που ζητήθηκε να διαγραφεί δεν βρέθηκε : https://prnt.sc/ENrCch-GHeLg
