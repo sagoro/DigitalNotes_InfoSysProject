@@ -49,27 +49,31 @@
 - Required Permissions : Admin
 - Required Permissions : Users
 
-Οι χρήστες μπορούν να χρησιμοποιήσουν μόνο τα endpoints που απαιτούν Users permissions, ενώς οι admin αντίστοιχα μπορούν να χρησιμοποιήσουν μόνο τα endpoints που απαιτούν Admin permissions αντίστοιχα.
+Οι χρήστες μπορούν να χρησιμοποιήσουν μόνο τα endpoints που απαιτούν Users permissions, ενώς οι admin αντίστοιχα μπορούν να χρησιμοποιήσουν μόνο τα endpoints που απαιτούν Admin permissions.
 
-Σε περίπτωση που ένας χρήστης προσπαθήσει να χρησιμοποιήσει endpoints που απαιτούν admin permissionsθα θα λάβει το παρακάτω Reponse :
+Σε περίπτωση που ένας χρήστης προσπαθήσει να χρησιμοποιήσει endpoints που απαιτούν admin permissions θα θα λάβει το παρακάτω Reponse :
 ```json
 "This service is available only for admins."
 ```
+Παράδειγμα λειτουργίας : https://prnt.sc/5u97Fu1uJ2Wv
 
-Σε περίπτωση που ένας διαχειριστής προσπαθήσει να χρησιμοποιήσει endpoints που απαιτούν users permissionsθα λάβει το παρακάτω Reponse :
+Σε περίπτωση που ένας διαχειριστής προσπαθήσει να χρησιμοποιήσει endpoints που απαιτούν users permissions θα λάβει το παρακάτω Reponse :
 ```json
-"This service is available only for users."
+"This service is available only for simples users."
 ```
+Παράδειγμα λειτουργίας : https://prnt.sc/7NVSux9lEB0T
 
 ## Εγγραφή στο σύστημα (Register)
 
-Μέσα από το συγκεκριμένο resource, οι ενδιαφερόμενοι χρήστες μπορούν να πραγματοποιήσουν την εγγραφή τους στο πληροφοριακό σύστημα.
+Οι ενδιαφερόμενοι χρήστες μπορούν να πραγματοποιήσουν την εγγραφή τους στο πληροφοριακό σύστημα.
 
-**Resources:**
-| Method | Resource | Description |
-| :----- |  :----- | :----- |
-| POST | /register | Register a user in the system. | 
+**Endpoint**
+<pre>
+<b>POST</b> /register
+</pre>
 
+> Authorization required : No
+> Permissions required : None
 
 **Request Body Schema**
 ```json
@@ -93,22 +97,27 @@
 Αν τα στοιχεία που δόθηκαν είναι σωστά και το email(username) δεν ανιτστοιχεί σε κάποιον άλλον χρήστη τότε η εγγραφή θα πραγματοποιηθεί με επιτυχία.
 Σε περίπτωση που το σύστημα εντοπίσει ότι το email που δόθηκε αντιστοιχεί σε κάποιον χρήστη, θα επιστρέψει κατάλληλο μήνυμα.
 
+### Παραδείγματα εκτέλεσης
 
+Επιτυχής εγγραφή : https://prnt.sc/IhadTq4GkTk3
+
+Wrong Request Body: https://prnt.sc/Nb6yqjyvGU8o
+
+Το email αντιστοιχεί σε άλλον χρήστη : https://prnt.sc/2D5u6oayh9_e
 
 
 ## Είσοδος στο σύστημα (Login)
 
-
-Με το συγκεκριμένο resource, οι εγγεγραμμένοι χρήστες μπορούν να πραγματοποιήσουν την είσοδό τους στο πληροφοριακό σύστημα.
+Οι εγγεγραμμένοι χρήστες μπορούν να πραγματοποιήσουν την είσοδό τους στο πληροφοριακό σύστημα.
 
 **Endpoint**
 <pre>
 <b>POST</b> /login
 </pre>
 
-==Auth required : NO==
+> Authorization required : No
+> Permissions required : None
 
-> **Auth required** : NO
 
 **Request Body Schema**
 ```json
