@@ -207,14 +207,16 @@ Workspace URL : https://www.postman.com/gold-crescent-810855/workspace/infosys-p
 Παρακάτω δίνονται δύο Demo Accounts.
 
 #### User Demo Login
-**User 1**
+
 email: sagoropoulos@gmail.com
+
 password : 12345
 
 
 #### Admin Demo Login
-Για είσοδο στο σύστημα με Admin Λογαριασμό 
+
 email : admin@infosys.gr
+
 password : 123
 
 ### Παραδείγματα εκτέλεσης
