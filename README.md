@@ -1,20 +1,23 @@
 # YpoxreotikiErgasia22_e16001_Agoropoulos_Stelios
-Εργασία εξαμήνου για το μάθημα "Πληροφοριακά Συστήματα" Εαρινό 2022 - Αγορόπουλος Στέλιος e16001
+Εργασία εξαμήνου για το μάθημα "Πληροφοριακά Συστήματα" Εαρινό 2022 - Αγορόπουλος Στέλιος e16001.
+
 Για οποιαδήποτε πληροφορία σχετικά με την εργασία, μπορείτε να επικοινωνήσετε μαζί μου στο sagoropoulos@gmail.com
 
 # Οδηγίες εγκατάστασης & εκτέλεσης
 
 Για να καταστεί εφικτή η εκτέλεση του παραπάνω συστήματος, απαιτείται η εγκατάσταση του Docker και του Docker Compose.
 
-#### Docker Desktop & Docker Compose
+## Docker Desktop & Docker Compose
 
 Υπάρχει διαθέσιμη εφαρμογή "Docker Desktop" για Mac,Windows και Linux,  η οποία περιλαμβάνει το Docker και το Docker Compose.
+
 Το μόνο που χρειάζεται να κάνει ο χρήστης είναι να κατεβάσει το εκτελέσιμο αρχείο και να προχωρήσει στην εγκατάσταση.
-Download Link : https://www.docker.com/products/docker-desktop/
+
+**Download Link**: https://www.docker.com/products/docker-desktop/
 
 Αναλυτικές οδηγίες εγκατάστασης και System Requirements ανα πλατφόρμα, μπορούν να βρεθούν εδώ : https://docs.docker.com/desktop/
 
-### Εγκατάσταση Docker για Linux
+## Εγκατάσταση Docker για Linux
 
 Για την εγκατάσταση του Docker σε Linux είναι απαραίτητη η εκτέλεση των παρακάτω εντολών στο Terminal.
 
@@ -33,7 +36,7 @@ add -
  $ sudo apt install docker-ce
 ```
 
-### Εγκατάσταση Docker Compose για Linux
+## Εγκατάσταση Docker Compose για Linux
 
 Για την εγκατάσταση του Docker Compose plugin σε Linux είναι απαραίτητη η εκτέλεση των παρακάτω εντολών στο Terminal.
 ```
@@ -61,7 +64,7 @@ add -
 Παρακάτω, μπορείτε να διαβάσετε αναλυτικά όλες τις λειτουργίες του συστήματος. Δίνονται αναλυτικές πληροφορίες για κάθε endpoint, καθώς και παραδείγματα εκτελέσεων.
 
 ### Δοκιμές λειτουργιών
-Επιπλέον, έχει γίνει publish ένα Workspace στο Postman, το οποίο μπορείτε να χρησιμοποιήσετε για να πραγματοποιήσετε όλες τις απαραίτητες δοκιμές.
+Έχει γίνει publish ένα Workspace στο Postman, το οποίο μπορείτε να χρησιμοποιήσετε για να πραγματοποιήσετε όλες τις απαραίτητες δοκιμές.
 **Είναι απαραίτητο να έχετε λογαριασμό στο Postman**.
 
 Workspace URL : https://www.postman.com/gold-crescent-810855/workspace/infosys-python-e16001-agoropoulos-stelios/overview
