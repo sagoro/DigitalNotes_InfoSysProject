@@ -72,9 +72,8 @@
 <b>POST</b> /register
 </pre>
 
-> Authorization required : No
-
-> Permissions required : None
+***Authorization required*** : No<br/>
+***Permissions required*** : None
 
 **Request Body Schema**
 ```json
