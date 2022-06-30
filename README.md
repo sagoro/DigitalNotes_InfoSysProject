@@ -116,9 +116,9 @@ Wrong Request Body: https://prnt.sc/Nb6yqjyvGU8o
 <b>POST</b> /login
 </pre>
 
-> Authorization required : No
+Authorization required : **No**
 
-> Permissions required : None
+Permissions required : **None**
 
 
 **Request Body Schema**
