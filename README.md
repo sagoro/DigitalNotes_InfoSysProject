@@ -7,9 +7,9 @@
 
 Για να καταστεί εφικτή η εκτέλεση του παραπάνω συστήματος, απαιτείται η εγκατάσταση του Docker και του Docker Compose.
 
-## Docker Desktop & Docker Compose
+## Docker Desktop
 
-Υπάρχει διαθέσιμη εφαρμογή "Docker Desktop" για Mac,Windows και Linux,  η οποία περιλαμβάνει το Docker και το Docker Compose.
+Υπάρχει διαθέσιμη η εφαρμογή "Docker Desktop" για Mac,Windows και Linux,  η οποία περιλαμβάνει το Docker και το Docker Compose.
 
 Το μόνο που χρειάζεται να κάνει ο χρήστης είναι να κατεβάσει το εκτελέσιμο αρχείο και να προχωρήσει στην εγκατάσταση.
 
@@ -48,15 +48,15 @@ add -
 
 Αρχικά, θα πρέπει να γίνει clone το συγκεκριμένο Repository ή Download as ZIP και να βάλετε τα περιεχομενα του σε ένα directory στο σύστημά σας.
 
-Στη συνέχεια, έχοντας εγκαταστήσει το Docker και το Docker Compose, για να δημιουργήσουμε μια Containerized εκδοχή της εφαρμογή μας που θα αλληλεπιδρά με την MongoDB θα πρέπει να εκτελεστεί η παρακάτω εντολή : 
+Στη συνέχεια, έχοντας εγκαταστήσει το Docker και το Docker Compose, για να δημιουργήσουμε μια Containerized εκδοχή της εφαρμογή μας και να την εκκινήσουμε θα πρέπει να τρέξουμε στο terminal την παρακάτω εντολή : 
 
 ```
  $ (sudo) docker-compose up -d
 ```
 
-Μετά την εκτέλεσ της εντολής, η εφαρμογή θα είναι διαθέσιμη στο url : **localhost:5000**
+Μετά την εκτέλεση της εντολής, η εφαρμογή θα είναι διαθέσιμη στο url : **localhost:5000**
 
-Για τον τερματισμό της εφαρμογής θα πρέπει να εκτελεστεί η παρακάτω εντολή : 
+Για τον τερματισμό της εφαρμογής θα πρέπει να εκτελεστεί στο terminal η παρακάτω εντολή : 
 ```
  $ (sudo) docker-compose down
 ```
@@ -76,7 +76,7 @@ Workspace URL : https://www.postman.com/gold-crescent-810855/workspace/infosys-p
 
 Στο συγκεκριμένo σύστημα, υποστηρίζεται HTTP Basic Authentication. 
 
-Για την χρήση των υπηρεσιών του συστήματος από έναν χρήστης είναι απαραίτητο αρχικά να έχει λογαριασμό στο σύστημα και να έχει πραγματοποιήσει είσοδο σε αυτό. Μόλις πραγματοποιήσει επιτυχή είσοδο θα δημιουργηθεί ένα session και το σύστημα θα του επιστρέψει το παρακάτω response : 
+Για την χρήση των υπηρεσιών του συστήματος από έναν χρήστη είναι απαραίτητο αρχικά να έχει λογαριασμό στο σύστημα και να έχει πραγματοποιήσει είσοδο σε αυτό. Μόλις πραγματοποιήσει επιτυχή είσοδο θα δημιουργηθεί ένα session και το σύστημα θα του επιστρέψει το παρακάτω response : 
 
 ```json
 {
@@ -115,7 +115,7 @@ Workspace URL : https://www.postman.com/gold-crescent-810855/workspace/infosys-p
 - Required Permissions : Admin
 - Required Permissions : Users
 
-Οι χρήστες μπορούν να χρησιμοποιήσουν μόνο τα endpoints που απαιτούν Users permissions, ενώς οι admin αντίστοιχα μπορούν να χρησιμοποιήσουν μόνο τα endpoints που απαιτούν Admin permissions.
+Οι χρήστες μπορούν να χρησιμοποιήσουν μόνο τα endpoints που απαιτούν Users permissions, ενώ οι admin αντίστοιχα μπορούν να χρησιμοποιήσουν μόνο τα endpoints που απαιτούν Admin permissions.
 
 Σε περίπτωση που ένας χρήστης προσπαθήσει να χρησιμοποιήσει endpoints που απαιτούν admin permissions θα θα λάβει το παρακάτω Reponse :
 ```json
@@ -160,14 +160,17 @@ Workspace URL : https://www.postman.com/gold-crescent-810855/workspace/infosys-p
 
 ***Θεωρούμε ότι το username του χρήστη είναι το email του.***
 
+Αρχικά γίνεται έλεγχος αν τα δεδομένα του Request Body καλύπτουν το Required Schema. Στην συνέχεια, γίνεται validation του email format. Σε περίπτωση λάθους το σύστμημ επιστρέφει αντίστοιχο μήνυμα. 
 Αν τα στοιχεία που δόθηκαν είναι σωστά και το email(username) δεν ανιτστοιχεί σε κάποιον άλλον χρήστη τότε η εγγραφή θα πραγματοποιηθεί με επιτυχία.
 Σε περίπτωση που το σύστημα εντοπίσει ότι το email που δόθηκε αντιστοιχεί σε κάποιον χρήστη, θα επιστρέψει κατάλληλο μήνυμα.
 
 ### Παραδείγματα εκτέλεσης
 
-Επιτυχής εγγραφή : https://prnt.sc/IhadTq4GkTk3
-
 Το Request Body δεν καλύπτει το Required Schema: https://prnt.sc/Nb6yqjyvGU8o
+
+Μη έγκυρο email : https://prnt.sc/zsuR77Z7O55G
+
+Επιτυχής εγγραφή : https://prnt.sc/IhadTq4GkTk3
 
 Το email αντιστοιχεί σε άλλον χρήστη : https://prnt.sc/2D5u6oayh9_e
 
@@ -199,13 +202,13 @@ Workspace URL : https://www.postman.com/gold-crescent-810855/workspace/infosys-p
 Επίσης, αν ο κωδικός είναι λάθος, τότε το endpoint θα επιστρέψει το αντίστοιχο μήνυμα.
 
 Σε περίπτωση που τα στοιχεία που δώσει είναι σωστά (email & κωδικός), τότε
-θα εισέλθει επιτυχώς στο σύστημα, θα ενημερωθεί κατάλληλα και το σύστημα θα του επιστρέψει το ***session_id*** του, ώστε να μπορεί να το χρησιμοποιεί για το Authorization του στις 
+θα εισέλθει επιτυχώς στο σύστημα, θα ενημερωθεί κατάλληλα και το σύστημα θα του επιστρέψει το ***Authorization Key*** του, ώστε να μπορεί να το χρησιμοποιεί για το Authorization του στις 
 υπόλοιπες υπηρεσίες του συστήματος.
 
 **Διαχειριστής**<br/>
 Για την είσοδο ενός διαχειριστή, ισχύουν τα παραπάνω που αφορούν και τους απλούς χρήστες. Επιπλέον όμως, όταν ένας διαχειριστής κάνει είσοδο στο σύστημα για πρώτη φορά, θα του ζητηθεί να 
 αλλάξει τον προσωρινό κωδικό του. Σε περίπτωση που δεν τον αλλάξει και συνδεθεί ξανά (και ας μην είναι η πρώτη φορά), θα γίνει εκ νέου υπενθύμιση για αλλαγή κωδικού.
-Η υπενθύμιση θα σταματήσει να εμφανίζεται, όταν ο διαχειριστής αλλάξει τον προσωρινό κωδικό του.
+Η υπενθύμιση θα σταματήσει να εμφανίζεται, όταν ο διαχειριστής αλλάξει τον προσωρινό κωδικό που του έδωσε το σύστημα κατά την δημιουργία του λογαριασμού.
 
 Παρακάτω δίνονται δύο Demo Accounts.
 
@@ -236,7 +239,7 @@ password : 123
 
 
 ## Αλλαγή κωδικού (Password Reset)
-Οι χρήστες και οι διαχειριστές μπορούν να αλλάξουν τον κωδικό πρόσβασης τους.
+Οι χρήστες και οι διαχειριστές μπορούν να αλλάξουν τον κωδικό πρόσβασής τους.
 
 **Endpoint**
 <pre>
@@ -247,9 +250,9 @@ password : 123
 *Permissions required* : **Admin or User**
 
 **Required Headers**
-```js
+```JSON
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
@@ -284,7 +287,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/w_
 
 ## Έξοδος από το σύστημα (Logout)
 
-Οι χρήστες μπορούν να αποσυνδεθούν από τον λογαριασμό τους.
+Οι χρήστες και οι διαχειριστές μπορούν να αποσυνδεθούν από τον λογαριασμό τους.
 
 **Endpoint**
 <pre>
@@ -295,9 +298,9 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/w_
 *Permissions required* : **Admin or User**
 
 **Required Headers**
-```js
+```JSON
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
@@ -329,11 +332,11 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/w_
 **Required Headers**
 ```json
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
-Ένας χρήστης μπορεί να πραγματοποιήσει διαγραφή του λογαριασμού και των δεδομένων του..
+Ένας χρήστης μπορεί να πραγματοποιήσει διαγραφή του λογαριασμού και των δεδομένων του.
 Το σύστημα αναγνωρίζει τον χρήστη βάσει του ***Authorization Key*** του και προχωράει στην διαγραφή του λογαριασμού του από την βάση καθώς και όλων των δεδομένων του και επιστρέφει το κατάλληλο μήνυμα.
 
 ### Παραδείγματα εκτέλεσης
@@ -355,8 +358,8 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/w_
 
 **Required Headers**
 ```json
- {
-	"Authorization" : session_id (provided by system after succesful login)
+{
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
@@ -406,7 +409,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 **Required Request Headers**
 ```json
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
@@ -422,7 +425,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 Αποτυχία εύρεσης σημείωσης/σημειώσεων : https://prnt.sc/8XXlPlOONzI1
 
 
-## Αναζήτηση σημείωσης με λέξει κλειδί (Search Note by Tag)
+## Αναζήτηση σημείωσης με λέξη κλειδί (Search Note by Tag)
 
 Αναζήτηση των σημειώσεων που περιέχουν μια συγκεκριμένη λέξη κλειδί.
 
@@ -442,7 +445,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 **Required Headers**
 ```json
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
@@ -478,13 +481,13 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 **Required Headers**
 ```json
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
 **Request Body Example 1**
 ```json
- {
+{
 	"title" : "My first note!",
 	"content" : "This is a dummy note.", 
 }
@@ -492,7 +495,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 
 **Request Body Example 2**
 ```json
- {
+{
 	"tags" : "Tag1,Tag2,Tag3"
 }
 ```
@@ -538,7 +541,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 **Required Headers**
 ```json
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
@@ -576,14 +579,14 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 **Required Headers**
 ```json
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
 Ένας χρήστης μπορεί να πραγματοποιήσει αναζήτηση όλων των σημειώσεων του.
 Είναι απαραίτητο ο χρήστης να επιλέξει την χρονολογική σειρά με την οποία θα εμφανίζονται οι σημειώσεις τους, δίνοντας το κατάλληλο parameter. Οι επιλογές είναι οι εξής : 
-- asc : ASCENDING->ταξινόμηση από την πιο παλιά προς τις νεότερες
-- desc : DESCENDING -> ταξινόμηση από τις νεότερες προς τις πιο παλιές
+- **asc** : ταξινόμηση από την πιο παλιά προς τις νεότερες (ascending)
+- **desc** : ταξινόμηση από τις νεότερες προς τις πιο παλιές (descending)
 
 Σε περίπτωση που δεν βρεθούν σημειώσεις, το σύστημα θα επιστρέψει ένα κενό payload. Διαφορετικά θα επιστρέψει όλες τις σημειώσεις του χρήστη, ταξινομημένες σύμφωνα με την επιλογή του.
 
@@ -591,11 +594,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 
 Λάθος parameter ***sortType*** : https://prnt.sc/ZxIbVxO5SkY9 
 
-Δεν βρέθηκαν σημειώσεις :  
-
 Επιτυχής εύρεση σημειώσεων σε αύξουσα σειρά : https://prnt.sc/mZOnXeFHIh_T
-
-Επιτυχής εύρεση σημειώσεων σε φθίνουσα σειρά : https://prnt.sc/cZgY6ZGh-lTd
 
 
 ## Εισαγωγή νέου διαχειριστή (Add Admin)
@@ -613,7 +612,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 **Required Headers**
 ```json
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
@@ -641,7 +640,7 @@ To Request Body δεν καλύπτει το Required Schema: https://prnt.sc/hL
 
 Το Request Body δεν καλύπτει το schema : https://prnt.sc/SZCakDNdE2hH
 
-To email είναι λανθασμένο : https://prnt.sc/ohOgWRqKMnXO
+Μη έγκυρο email : https://prnt.sc/ohOgWRqKMnXO
 
 Υπάρχει ήδη διαχειριστής με αυτό το email : https://prnt.sc/eIhPd6qbYmW0
 
@@ -668,7 +667,7 @@ To email είναι λανθασμένο : https://prnt.sc/ohOgWRqKMnXO
 **Required Headers**
 ```json
 {
-	"Authorization" : session_id (provided by system after succesful login)
+	"Authorization" : "Your Authorization Key"
 }
 ```
 
@@ -682,3 +681,12 @@ To email είναι λανθασμένο : https://prnt.sc/ohOgWRqKMnXO
 Επιτυχής διαγραφή ενός χρήστη : https://prnt.sc/zozYwCdhr0em
 
 Ο χρήστης που ζητήθηκε να διαγραφεί δεν βρέθηκε : https://prnt.sc/ENrCch-GHeLg
+
+
+# Δεδομένα εφαρμογής
+
+Όλα τα δεδομένα της εφαρμογής αποθηκεύονται σε έναν φάκελο του host με το όνομα **data**. Έχουμε κάνει mount τα volumes της MongoDB στον συγκεκριμένο φάκελο, ώστε να αποφευχθεί η απώλεια δεδομένων σε περίπτωση που διαγραφεί το container της MongoDB.
+
+Για το visualization των δεδομένων, προτείνεται η χρήστη του GUI MongoDBCompass, το οποίο μπορείτε να βρείτε εδώ : https://www.mongodb.com/products/compass
+
+Διαφορετικά, μπορεί να γίνει και χρήση του MongoShell. Οδηγίες εδώ : https://www.mongodb.com/docs/v4.4/mongo/
