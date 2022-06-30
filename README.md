@@ -73,6 +73,7 @@
 </pre>
 
 > Authorization required : No
+
 > Permissions required : None
 
 **Request Body Schema**
@@ -116,6 +117,7 @@ Wrong Request Body: https://prnt.sc/Nb6yqjyvGU8o
 </pre>
 
 > Authorization required : No
+
 > Permissions required : None
 
 
