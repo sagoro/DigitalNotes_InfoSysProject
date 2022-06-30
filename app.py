@@ -62,7 +62,7 @@ Application
 """ 
 @app.route('/')
 def ping_server():
-	return "Hi DigitalNotes"
+	return "Hi DigitalNotes. You can find more information about the application here : https://github.com/sagoro/YpoxreotikiErgasia22_e16001_Agoropoulos_Stelios "
 
 
 """
@@ -145,19 +145,14 @@ def userLogin():
 			res = {
 				"Authorization Key": user_uuid,
 				"username": data['email'],
-				"message":"Login successful!",
-				#"users sessions":users_sessions,
-				#"userfromSession":users_sessions[user_uuid][0]
+				"message":"Login successful!"
 				}
 
-			#NA DW TO CASE firstLogin=0 kai na min exei kanei pass reset
 			#Check Admin first login
 			if searchUser["category"]=="admin" and searchUser['firstLogin'] == 1 and searchUser['passwordReset']== 0:
 				res = {
 					"Authorization Key": user_uuid,
 					"username": data['email'],
-					#"users sessions":users_sessions,
-					#"userfromSession":users_sessions[user_uuid][0],
 					"message": "Successful login. Please reset your password by following the endpoint /passwordReset"}
 				searchUser = users.update_one({'email':data['email']},
 				{"$set":
@@ -171,8 +166,6 @@ def userLogin():
 				res = {
 					"Authorization Key": user_uuid,
 					"username": data['email'],
-					#"users sessions":users_sessions,
-					#"userfromSession":users_sessions[user_uuid][0],
 					"message": "Successful login. Please reset your password by following the endpoint /passwordReset"}
 				return Response(json.dumps(res),status=200, mimetype='application/json')
 
@@ -184,14 +177,14 @@ def userLogin():
 
 
 #Logout
-@app.route('/logout', methods=['GET'])
+@app.route('/logout', methods=['POST'])
 def logout():
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
 		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
-		return Response("You can't logout if you are not logged in...https://bit.ly/3bD9zmQ", status=400, mimetype="application/json")
+		return Response("You can't logout if you are not logged in...https://bit.ly/3bD9zmQ", status=401, mimetype="application/json")
 
 	tmpUser = getUser(session_id)
 	isLoggedIn= checkLoggedIn(tmpUser)
@@ -318,7 +311,7 @@ def searchNoteTag(tag):
 
 	session_id = request.headers.get('Authorization')
 	if session_id == None:
-		return Response("You are not authorized to perform this action. Please try to login first.", status=401, mimetype="application/json")
+		return Response("Authorization key is missing. Please pass session_id in Authorization header.", status=401, mimetype="application/json")
 
 	if not is_session_valid(session_id):
 		return Response("No active session. Please login", status=401, mimetype="application/json")
@@ -450,7 +443,7 @@ def deleteNote(id):
 		return Response("Note not found. Couldn't proceed with deletion.", status=400, mimetype="application/json")
 
 #Get All Notes
-@app.route('/getnotes/<string:sortType>', methods=['GET'])
+@app.route('/notes/getAll/<string:sortType>', methods=['GET'])
 def getNotes(sortType):
 
 	if sortType!='desc' and sortType!='asc':
