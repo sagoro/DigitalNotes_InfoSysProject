@@ -107,7 +107,7 @@ Workspace URL : https://www.postman.com/gold-crescent-810855/workspace/infosys-p
 Παράδειγμα λειτουργίας : https://prnt.sc/vOnUo4Su9XLr
 
 
-### Premissions 
+### Permissions 
 Για την χρήση των Endpoints υπάρχουν δύο ειδών εξουσιοδοτήσεις : 
 - Required Permissions : Admin
 - Required Permissions : Users
