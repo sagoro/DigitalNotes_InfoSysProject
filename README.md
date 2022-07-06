@@ -15,7 +15,7 @@
 
 **Download Link**: https://www.docker.com/products/docker-desktop/
 
-Αναλυτικές οδηγίες εγκατάστασης και System Requirements ανα πλατφόρμα, μπορούν να βρεθούν εδώ : https://docs.docker.com/desktop/
+Αναλυτικές οδηγίες εγκατάστασης και System Requirements για κάθε λειτουργικό σύστημα, μπορούν να βρεθούν εδώ : https://docs.docker.com/desktop/
 
 ## Εγκατάσταση Docker για Linux
 
